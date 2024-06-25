@@ -1,0 +1,45 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5005:5005"
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=production
+      - DB_CONNECTION_URI=mongodb://mongo-db-daye:27017/tampon-production?authSource=admin
+    volumes:
+      - .:/usr/src/app
+    networks:
+      - daye-network
+    depends_on:
+      - mongo
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-db-daye
+    ports:
+      - "27019:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - daye-network
+
+  mongo-express:
+    image: mongo-express:latest
+    container_name: mongo-express-daye
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongo-db-daye
+    networks:
+      - daye-network
+    depends_on:
+      - mongo
+volumes:
+  mongo-data:
+
+networks:
+  daye-network:
